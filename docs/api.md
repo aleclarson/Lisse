@@ -8,8 +8,6 @@
 | `distributeAndNormalize(rect)` | `core` | Distribute radii across a rectangle, resolving overlaps |
 | `createSvgEffects(anchor)` | `core` | Create an SVG overlay for borders and inner shadows |
 | `createDropShadow(anchor)` | `core` | Create a path-based drop shadow |
-| `buildBoxShadowChain(shadows)` | `core` | Serialize shadow configs for a CSS `box-shadow` |
-| `hasBorderRadiusStyle(style)` | `core` | Detect inline border-radius properties in a style object |
 | `extractAndStripEffects(el)` | `core` | Extract CSS border/shadow and convert to SVG effects |
 | `restoreStyles(el, saved)` | `core` | Restore stripped CSS border/shadow styles |
 | `observeResize(el, callback)` | `core` | Observe element resize with a shared `ResizeObserver` |
