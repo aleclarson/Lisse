@@ -8,7 +8,7 @@ import * as core from "@lisse/core";
 import * as react from "@lisse/react";
 import * as vue from "@lisse/vue";
 import * as svelte from "@lisse/svelte";
-import * as octane from "@lisse/octane";
+import * as octane from "lisse-octane";
 
 // Core: generatePath returns a non-empty string when given a real config.
 const path = core.generatePath(200, 100, { radius: 16, smoothing: 0.6 });

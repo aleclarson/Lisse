@@ -1,7 +1,7 @@
 {
-  "name": "@lisse/octane",
+  "name": "lisse-octane",
   "version": "0.7.1",
-  "description": "Octane hook and component for smooth-cornered (squircle) elements",
+  "description": "Unofficial Octane adapter for Lisse",
   "license": "MIT",
   "type": "module",
   "octane": {

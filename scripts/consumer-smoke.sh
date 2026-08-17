@@ -54,27 +54,44 @@ echo "[consumer-smoke] pinning tarballs into the fixture manifest"
 # The adapters depend on @lisse/core@<version>, which pnpm would happily
 # resolve from the npm REGISTRY — silently smoking the published core
 # instead of the one packed above. pnpm overrides force every resolution
-# (direct and transitive) onto the local tarballs. The manifest is
-# restored afterwards so the hash-suffixed specs never leak into git.
+# (direct and transitive) onto the local tarballs. Keep the override in the
+# manifest for older pnpm versions and in pnpm-workspace.yaml for pnpm 11+.
+# Both files are restored afterwards so the hash-suffixed specs never leak
+# into git.
 cp "$FIXTURE_DIR/package.json" "$FIXTURE_DIR/package.json.orig"
-trap 'mv "$FIXTURE_DIR/package.json.orig" "$FIXTURE_DIR/package.json"' EXIT
+if [[ -e "$FIXTURE_DIR/pnpm-workspace.yaml" ]]; then
+  cp "$FIXTURE_DIR/pnpm-workspace.yaml" "$FIXTURE_DIR/pnpm-workspace.yaml.orig"
+fi
+cleanup() {
+  mv "$FIXTURE_DIR/package.json.orig" "$FIXTURE_DIR/package.json"
+  if [[ -e "$FIXTURE_DIR/pnpm-workspace.yaml.orig" ]]; then
+    mv "$FIXTURE_DIR/pnpm-workspace.yaml.orig" "$FIXTURE_DIR/pnpm-workspace.yaml"
+  else
+    rm -f "$FIXTURE_DIR/pnpm-workspace.yaml"
+  fi
+}
+trap cleanup EXIT
 node -e '
   const fs = require("fs");
-  const [manifestPath, vendorDir] = process.argv.slice(1);
+  const [manifestPath, vendorDir, workspacePath] = process.argv.slice(1);
   const pkg = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
   pkg.pnpm = pkg.pnpm ?? {};
   pkg.pnpm.overrides = pkg.pnpm.overrides ?? {};
   for (const tgz of fs.readdirSync(vendorDir)) {
-    const name = "@lisse/" + tgz.replace(/^lisse-/, "").replace(/-\d.*$/, "");
+    const slug = tgz.replace(/-\d.*$/, "");
+    const name = slug === "lisse-octane" ? slug : "@lisse/" + slug.replace(/^lisse-/, "");
     const spec = "file:./vendor/" + tgz;
     pkg.dependencies[name] = spec;
     pkg.pnpm.overrides[name] = spec;
   }
   fs.writeFileSync(manifestPath, JSON.stringify(pkg, null, 2) + "\n");
-' "$FIXTURE_DIR/package.json" "$VENDOR_DIR"
+  const overrides = Object.entries(pkg.pnpm.overrides)
+    .map(([name, spec]) => `  ${JSON.stringify(name)}: ${JSON.stringify(spec)}`);
+  fs.writeFileSync(workspacePath, ["overrides:", ...overrides, ""].join("\n"));
+' "$FIXTURE_DIR/package.json" "$VENDOR_DIR" "$FIXTURE_DIR/pnpm-workspace.yaml"
 
 echo "[consumer-smoke] installing fixture deps"
-( cd "$FIXTURE_DIR" && pnpm install --no-frozen-lockfile --ignore-workspace )
+( cd "$FIXTURE_DIR" && pnpm install --no-frozen-lockfile )
 
 echo "[consumer-smoke] running ESM smoke"
 ( cd "$FIXTURE_DIR" && node esm-smoke.mjs )

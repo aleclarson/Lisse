@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Slot, SmoothCorners, useSmoothCorners, type RefObject } from "../src/index.js";
 import { installNoopResizeObserver, stubLayout } from "./helpers.js";
 
-const HOOK_SLOT = Symbol.for("@lisse/octane:test:smooth-corners:hook");
+const HOOK_SLOT = Symbol.for("lisse-octane:test:smooth-corners:hook");
 
 let container: HTMLDivElement;
 let root: Root;

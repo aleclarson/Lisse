@@ -53,7 +53,7 @@
       ]
     },
     {
-      "name": "@lisse/octane (incl. core, ESM, brotli, excluding peer dep)",
+      "name": "lisse-octane (incl. core, ESM, brotli, excluding peer dep)",
       "path": "packages/octane/dist/index.js",
       "limit": "12.5 KB",
       "ignore": [

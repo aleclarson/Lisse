@@ -33,4 +33,4 @@ See individual package READMEs for framework-specific details:
 - [`@lisse/react`](../packages/react/README.md)
 - [`@lisse/vue`](../packages/vue/README.md)
 - [`@lisse/svelte`](../packages/svelte/README.md)
-- [`@lisse/octane`](../packages/octane/README.md)
+- [`lisse-octane`](../packages/octane/README.md)

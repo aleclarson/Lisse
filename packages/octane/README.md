@@ -1,30 +1,21 @@
-# @lisse/octane
+# lisse-octane
 
-Octane hook and component for smooth-cornered (squircle) elements, powered by
-[Figma's smoothing algorithm](https://www.figma.com/blog/desperately-seeking-squircles/).
+An unofficial [Octane](https://github.com/octanejs/octane) adapter for
+[Lisse](https://github.com/JaceThings/Lisse).
 
-## Installation
+It provides `SmoothCorners`, `useSmoothCorners`, and `Slot` for Octane apps
+while reusing Lisse's geometry and effects APIs.
 
 ```sh
-pnpm add @lisse/octane octane
+pnpm add lisse-octane octane
 ```
 
-## Quick start
+```tsx
+import { SmoothCorners } from "lisse-octane";
 
-```tsrx
-import { SmoothCorners } from "@lisse/octane";
-
-export function Card(props: { children?: unknown }) @{
-  <SmoothCorners corners={{ radius: 20, smoothing: 0.6 }} style={{ background: "#fff", padding: 24 }}>
-    {props.children}
-  </SmoothCorners>
+export function Card() {
+  return <SmoothCorners corners={{ radius: 20 }}>Hello</SmoothCorners>;
 }
 ```
 
-The adapter mirrors `@lisse/react`: `useSmoothCorners`, `SmoothCorners`,
-`Slot`, explicit borders and shadows, automatic CSS effect extraction, and the
-`shadowStrategy="box-shadow"` fallback are available from the package root.
-
-Octane uses native delegated events and refs-as-props. The binding is authored
-as plain TypeScript with explicit manual hook-slot forwarding, so it can be
-consumed from compiled `.tsrx` or `.tsx` applications without a React runtime.
+For the full API and usage details, see the [official Lisse README](https://github.com/JaceThings/Lisse#readme).

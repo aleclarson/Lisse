@@ -15,7 +15,7 @@ export function subSlot(slot: symbol | undefined, tag: string): symbol | undefin
   if (byTag === undefined) subSlotCache.set(slot, (byTag = new Map()));
   let child = byTag.get(tag);
   if (child === undefined) {
-    child = Symbol.for(`@lisse/octane:${slot.description ?? ""}:${tag}`);
+    child = Symbol.for(`lisse-octane:${slot.description ?? ""}:${tag}`);
     byTag.set(tag, child);
   }
   return child;
@@ -28,7 +28,7 @@ const componentSlotCache = new Map<string, symbol>();
 export function componentSlot(name: string): symbol {
   let slot = componentSlotCache.get(name);
   if (slot === undefined) {
-    slot = Symbol.for(`@lisse/octane:component:${name}`);
+    slot = Symbol.for(`lisse-octane:component:${name}`);
     componentSlotCache.set(name, slot);
   }
   return slot;

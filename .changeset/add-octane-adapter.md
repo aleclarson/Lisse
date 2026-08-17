@@ -1,5 +1,5 @@
 ---
-"@lisse/octane": minor
+"lisse-octane": minor
 ---
 
-Add an Octane adapter with `useSmoothCorners`, `SmoothCorners`, and `Slot`.
+Add an unofficial Octane adapter with `useSmoothCorners`, `SmoothCorners`, and `Slot`.

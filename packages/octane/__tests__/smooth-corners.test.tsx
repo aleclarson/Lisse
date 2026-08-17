@@ -25,7 +25,7 @@ afterEach(() => {
   container.remove();
 });
 
-describe("@lisse/octane", () => {
+describe("lisse-octane", () => {
   it("renders the direct element when effects are disabled", () => {
     act(() => {
       root.render(
