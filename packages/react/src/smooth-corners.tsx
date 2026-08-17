@@ -17,7 +17,12 @@ import {
 import { useSmoothCorners } from "./use-smooth-corners.js";
 import { Slot } from "./slot.js";
 import { composeRefs } from "./compose-refs.js";
-import { hasEffects, cornerOptionsToBorderRadius } from "@lisse/core";
+import {
+  buildBoxShadowChain,
+  cornerOptionsToBorderRadius,
+  hasBorderRadiusStyle,
+  hasEffects,
+} from "@lisse/core";
 import type { SmoothCornerOptions, BorderConfig, ShadowConfig } from "@lisse/core";
 
 /**
@@ -71,68 +76,11 @@ export type SmoothCornersProps<E extends ElementType = "div"> = SmoothCornersOwn
   as?: E;
 } & Omit<ComponentPropsWithoutRef<E>, ReservedKeys>;
 
-/** CSS `box-shadow` chain; first entry renders topmost. Invisible entries are dropped. */
-function buildBoxShadowChain(shadows: ShadowConfig | ShadowConfig[]): string {
-  const arr = Array.isArray(shadows) ? shadows : [shadows];
-  const parts: string[] = [];
-  for (const s of arr) {
-    if (s.opacity <= 0) continue;
-    const { offsetX, offsetY, blur, spread, color, opacity } = s;
-    const geometry = `${offsetX}px ${offsetY}px ${blur}px ${spread}px`;
-    const rgb = hexToRgbChannels(color);
-    // Non-hex colors (oklch/lab/color()…) can't be split into channels —
-    // parseInt would yield `rgba(NaN,…)`, which CSS treats as invalid and
-    // drops the entire box-shadow declaration. Extraction embeds alpha in the
-    // string with opacity 1 (verbatim is exact); API-supplied opacity < 1 is
-    // applied via color-mix to match the SVG strategy's fill-opacity.
-    const paint = rgb
-      ? `rgba(${rgb.r},${rgb.g},${rgb.b},${opacity})`
-      : opacity < 1
-        ? `color-mix(in srgb, ${color} ${opacity * 100}%, transparent)`
-        : color;
-    parts.push(`${geometry} ${paint}`);
-  }
-  return parts.join(", ");
-}
-
-// Core's exported hexToRgb returns a formatted `rgb(...)` string; box-shadow
-// needs the raw channels to compose `rgba(r,g,b,opacity)`. Returns null for
-// anything that isn't a 3- or 6-digit hex, so the caller can fall back to the
-// original color string.
-function hexToRgbChannels(hex: string): { r: number; g: number; b: number } | null {
-  if (!/^#?[0-9a-f]{3}(?:[0-9a-f]{3})?$/i.test(hex)) return null;
-  const h = hex.replace("#", "");
-  const expanded = h.length === 3 ? h[0] + h[0] + h[1] + h[1] + h[2] + h[2] : h;
-  return {
-    r: parseInt(expanded.substring(0, 2), 16),
-    g: parseInt(expanded.substring(2, 4), 16),
-    b: parseInt(expanded.substring(4, 6), 16),
-  };
-}
-
 /** The `style` of the single element `asChild` clones onto. */
 function childSuppliedStyle(children: ReactNode): CSSProperties | undefined {
   const child = Children.toArray(children)[0];
   if (!isValidElement(child)) return undefined;
   return (child.props as { style?: CSSProperties }).style;
-}
-
-// `borderRadius` plus every per-corner longhand, physical and logical
-// (`borderTopLeftRadius`, `borderStartEndRadius`, …).
-const RADIUS_PROPERTY = /^border[A-Za-z]*Radius$/;
-
-/**
- * True when `style` sets any corner radius. Longhands count: the teardown
- * clears the `border-radius` shorthand, which erases the longhands with it, so
- * a single per-corner value the consumer set is enough to disable the fallback.
- */
-function styleHasBorderRadius(style: CSSProperties | undefined): boolean {
-  if (!style) return false;
-  const record = style as Record<string, unknown>;
-  for (const key of Object.keys(record)) {
-    if (record[key] !== undefined && RADIUS_PROPERTY.test(key)) return true;
-  }
-  return false;
 }
 
 function SmoothCornersImpl<E extends ElementType = "div">(
@@ -188,7 +136,8 @@ function SmoothCornersImpl<E extends ElementType = "div">(
   // because Slot merges the child's style last. Clearing that would discard a
   // value the consumer set, so it counts as user-supplied here too.
   const childStyle = asChild ? childSuppliedStyle(children) : undefined;
-  const userSuppliedRadius = styleHasBorderRadius(userStyle) || styleHasBorderRadius(childStyle);
+  const userSuppliedRadius =
+    hasBorderRadiusStyle(userStyle) || hasBorderRadiusStyle(childStyle);
   const innerStyle: CSSProperties = {
     borderRadius: fallbackRadiusRef.current,
     ...userStyle,

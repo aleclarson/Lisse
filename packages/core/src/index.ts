@@ -26,6 +26,7 @@ export {
   type ExtractedEffects,
 } from "./extract-effects.js";
 export { acquirePosition, releasePosition } from "./position-ref-count.js";
+export { buildBoxShadowChain, hasBorderRadiusStyle } from "./style-utils.js";
 
 export type {
   CornerConfig,
